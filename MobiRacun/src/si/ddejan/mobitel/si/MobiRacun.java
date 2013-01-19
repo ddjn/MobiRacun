@@ -1,4 +1,4 @@
-package si.ddejan.mobitel.si;
+ï»¿package si.ddejan.mobitel.si;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -16,7 +16,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 
-/** Namen tega class ja preprost nadzor nad stanjem na mobi raèunu in polnenje mobi raèuna. </p>
+/** Namen tega class ja preprost nadzor nad stanjem na mobi raÄunu in polnenje mobi raÄuna. </p>
  * 
  * Potrebuje <a href="http://htmlunit.sourceforge.net">"htmlunit"<a/> v classpath.
  * 
@@ -26,7 +26,7 @@ public class MobiRacun{
 	private String puk_code= null;
 
 	private static final String LOGIN_FORM= "https://monitor.mobitel.si/mobinew/ppPukRefillLogin.jsp";
-	private static final String LOGIN_FAIL= "Telefonska številka in PUK nista pravilni";
+	private static final String LOGIN_FAIL= "Telefonska Å¡tevilka in PUK nista pravilni";
 
 	/** <code>SimpleDateFormat("yyyy-MM-dd")</code> */
 	public static final SimpleDateFormat formatDate= new SimpleDateFormat(
@@ -39,14 +39,14 @@ public class MobiRacun{
 
 	private boolean autoRefresh= false;
 
-	// STATUS RAÈUNA
+	// STATUS RAÄŒUNA
 	private Float racunStanje= null;
 	private Date racunVeljaDo= null;
 	private Boolean racunAktiven= null;
 
 	/** Klikne gumb "preberi stanje"
 	 * 
-	 * @return TRUE èe je uspel klikniti */
+	 * @return TRUE Äe je uspel klikniti */
 	private boolean clickPreberiStanje() {
 		Iterable<HtmlAnchor> links= ((HtmlPage) loged_in).getAnchors();
 
@@ -65,10 +65,10 @@ public class MobiRacun{
 		}
 	}
 
-	/** Ko so podatki o stanju e naloeni oz. je bil kliknjen gumb naloi stanje sparsa vrednosti
+	/** Ko so podatki o stanju Å¾e naloÅ¾eni oz. je bil kliknjen gumb naloÅ¾i stanje sparsa vrednosti
 	 * 
 	 * @see #clickPreberiStanje()
-	 * @return èe je šlo brez problemov */
+	 * @return Äe je Å¡lo brez problemov */
 	private boolean preberiStanjeIzForme() {
 		try {
 			if (isSeasionValid( true ) && clickPreberiStanje()) {
@@ -127,9 +127,9 @@ public class MobiRacun{
 		return true;
 	}
 
-	/** Stanja ne raèunu v EUR
+	/** Stanja ne raÄunu v EUR
 	 * 
-	 * @return Stanje na raèunu v EUR */
+	 * @return Stanje na raÄunu v EUR */
 	public Float getStanje() {
 		if (isAutoRefresh() || (racunStanje == null))
 			preberiStanjeIzForme();
@@ -137,27 +137,27 @@ public class MobiRacun{
 
 	}
 
-	/** Datum do katerega je veljaven raèun
+	/** Datum do katerega je veljaven raÄun
 	 * 
-	 * @return vrne Datum kdaj poteèe mobi raèun */
+	 * @return vrne Datum kdaj poteÄe mobi raÄun */
 	public Date getVeljavnost() {
 		if (isAutoRefresh() || (racunVeljaDo == null))
 			preberiStanjeIzForme();
 		return racunVeljaDo;
 	}
 
-	/** Aktivnost raèuna
+	/** Aktivnost raÄuna
 	 * 
-	 * @return true èe je raèun aktiven, false èe je raèun neaktiven. */
+	 * @return true Äe je raÄun aktiven, false Äe je raÄun neaktiven. */
 	public Boolean jeAktiven() {
 		if (isAutoRefresh() || (racunAktiven == null))
 			preberiStanjeIzForme();
 		return racunAktiven;
 	}
 
-	/** Preveri èe smo prijavljeni v spletno stran
+	/** Preveri Äe smo prijavljeni v spletno stran
 	 * 
-	 * @param reload_page ali naj pred preverjanjem še enkrat naloi spletno stran
+	 * @param reload_page ali naj pred preverjanjem Å¡e enkrat naloÅ¾i spletno stran
 	 * @return */
 	private boolean isSeasionValid(boolean reload_page) {
 		if (reload_page == true)
@@ -175,9 +175,9 @@ public class MobiRacun{
 
 	}
 
-	/** Mapolni mobi raèun z kodo
+	/** Mapolni mobi raÄun z kodo
 	 * 
-	 * @param koda (16 mestna) za polnitev raèuna */
+	 * @param koda (16 mestna) za polnitev raÄuna */
 	public boolean napolni(String koda) {
 		HtmlForm form= ((HtmlPage) this.loged_in).getFormByName( "RefillForm" );
 		form.getInputByName( "scratch" ).setValueAttribute( koda );
@@ -202,14 +202,14 @@ public class MobiRacun{
 			return false;
 		}
 
-		// Raèun je bil napolnjen.. preberi stanje..
+		// RaÄun je bil napolnjen.. preberi stanje..
 		preberiStanjeIzForme();
 		return true;
 	}
 
 	/** Prijavi uporavnika v stran
 	 * 
-	 * @return true èe je prijava uspešna, sicer false */
+	 * @return true Äe je prijava uspeÅ¡na, sicer false */
 	public boolean login() {
 		try {
 			HtmlPage page= browser.getPage( LOGIN_FORM );
@@ -279,13 +279,13 @@ public class MobiRacun{
 		this.puk_code= puk_code;
 	}
 
-	/** Preveri èe bodo podatki osveeni pred vsakim branjem podatkov get
-	 * @return boolean èe je vklopljeno avtomatko osveevenje */
+	/** Preveri Äe bodo podatki osveÅ¾eni pred vsakim branjem podatkov get
+	 * @return boolean Äe je vklopljeno avtomatko osveÅ¾evenje */
 	public boolean isAutoRefresh() {
 		return autoRefresh;
 	}
 
-	/** Nastavitev avtomatskega osveevanja
+	/** Nastavitev avtomatskega osveÅ¾evanja
 	 * @param autoRefresh */
 	public void setAutoRefresh(boolean autoRefresh) {
 		this.autoRefresh= autoRefresh;
@@ -301,13 +301,12 @@ public class MobiRacun{
 		//@formatter:on
 	}
 
-	
 	public static void main(String[] args) {
 		final String napolniCmd= "-napolni";
 		//@formatter:off
 		final String param = 
 				"MobiRacun:" + "\n"+
-				"parametri: telefonska_številka geslo_puk_koda "+ 
+				"parametri: telefonska_Å¡tevilka geslo_puk_koda "+ 
 									"["+ napolniCmd + " koda_za_polnit]";
 		//@formatter:on
 		// Namen
@@ -319,15 +318,15 @@ public class MobiRacun{
 				throw new Exception( "Neveljavni parametri" );
 
 			if (mr.login()) {
-				System.out.println( "Uspešna prijava v raèun" );
-				if ((args.length == 4) && (args[2].equals( napolniCmd ))) { // POLNITEV RAÈUNA
+				System.out.println( "UspeÅ¡na prijava v raÄun" );
+				if ((args.length == 4) && (args[2].equals( napolniCmd ))) { // POLNITEV RAÄŒUNA
 					String koda= args[3];
-					System.out.print( "Polnjenje Mobi raèuna: " );
+					System.out.print( "Polnjenje Mobi raÄuna: " );
 					if (mr.napolni( koda ))
-						System.out.println( "USPEŠNO" );
+						System.out.println( "USPEÅ NO" );
 					else
-						System.out.println( "NEUSPEŠNO" );
-				} else { // NI POLNITEV -- IZPIŠI STANJE
+						System.out.println( "NEUSPEÅ NO" );
+				} else { // NI POLNITEV -- IZPIÅ I STANJE
 					//@formatter:off
 					System.out.println( 
 							"Stanje_na_racunu: "+ formatFloat.format( mr.getStanje() ) + "\n"+
