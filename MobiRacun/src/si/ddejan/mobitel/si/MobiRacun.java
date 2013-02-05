@@ -2,10 +2,12 @@
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Locale;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -79,7 +81,7 @@ public class MobiRacun{
 
 	}
 
-	protected WebClient browser= null;
+	protected final WebClient browser;
 	protected Page loged_in= null;
 
 	protected boolean autoRefresh= false;
@@ -281,39 +283,33 @@ public class MobiRacun{
 				for (final HtmlTableRow row : table.getRows()) {
 					if (row.getCell( 0 ).asText().indexOf( "Stanje:" ) >= 0) {
 						try {
-							StringTokenizer st= new StringTokenizer( row
-									.getCell( 1 ).asText().replace( ',', '.' ),
-									" " );
-							racunStanje= Float.parseFloat( st.nextToken() );
-						} catch (Exception e) {
+							String strStanje= row.getCell( 1 ).asText().trim();
+							NumberFormat nf= NumberFormat
+									.getNumberInstance( new Locale( "sl", "SI" ) );
+							racunStanje= nf.parse( strStanje ).floatValue();
+						} catch (NumberFormatException e) {
 						}
 						continue;
 					}
-
+					
 					if (row.getCell( 0 ).asText().indexOf( "Velja DO:" ) >= 0) {
 						try {
 							SimpleDateFormat df= new SimpleDateFormat(
 									"dd.MM.yyyy" );
 							racunVeljaDo= df.parse( row.getCell( 1 ).asText() );
-						} catch (Exception e) {
+						} catch (ParseException e) {
 							e.printStackTrace();
 						}
 						continue;
 					}
+					
 					if (row.getCell( 0 ).asText().indexOf( "Status:" ) >= 0) {
-						try {
-							racunAktiven= Boolean.valueOf( row.getCell( 1 )
-									.asText().equals( "Aktiven" ) );
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						racunAktiven= Boolean.valueOf( row.getCell( 1 )
+								.asText().equals( "Aktiven" ) );
 						continue;
 					}
-
 				}
-
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
