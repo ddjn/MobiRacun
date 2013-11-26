@@ -11,8 +11,11 @@ import java.util.Locale;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlDivision;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
@@ -24,17 +27,17 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
  * 
  * @author Dejan D */
 public class MobiRacun{
-	private String telephone_number= null;
-	private String puk_code= null;
+	protected String telephone_number= null;
+	protected String puk_code= null;
 
-	private static final String LOGIN_FORM= "https://monitor.mobitel.si/mobinew/ppPukRefillLogin.jsp";
-	private static final String LOGIN_FAIL_MSG= "Telefonska številka in PUK nista pravilni";
+	protected static final String LOGIN_FORM= "https://monitor.mobitel.si/mobinew/ppPukRefillLogin.jsp";
+	protected static final String LOGIN_FAIL_MSG= "Telefonska številka in PUK nista pravilni";
 
 	/** <code>SimpleDateFormat("yyyy-MM-dd")</code> */
-	public static final SimpleDateFormat formatDate= new SimpleDateFormat(
+	protected static final SimpleDateFormat formatDate= new SimpleDateFormat(
 			"yyyy-MM-dd" );
 	/** <code>DecimalFormat("#.##")</code> */
-	public static final DecimalFormat formatFloat= new DecimalFormat( "#.##" );
+	protected static final DecimalFormat formatFloat= new DecimalFormat( "#.##" );
 
 	public static void main(String[] args) {
 		final String napolniCmd= "-napolni";
@@ -85,7 +88,7 @@ public class MobiRacun{
 	protected Page loged_in= null;
 
 	protected boolean autoRefresh= false;
-	// STATUS RAČUNA
+	// STATUS RAČUNAf
 	protected Float racunStanje= null;
 	protected Date racunVeljaDo= null;
 	protected Boolean racunAktiven= null;
@@ -102,7 +105,7 @@ public class MobiRacun{
 		super();
 	}
 
-	/** @see #login()
+	/** @see #flogin()
 	 * @param telephone_number
 	 * @param puk_code */
 	public MobiRacun(String telephone_number, String puk_code) {
@@ -115,14 +118,18 @@ public class MobiRacun{
 	 * 
 	 * @return TRUE če je uspel klikniti */
 	private boolean clickPreberiStanje() {
-		Iterable<HtmlAnchor> links= ((HtmlPage) loged_in).getAnchors();
-
-		HtmlAnchor submit_button= null;
-		for (HtmlAnchor link : links)
-			if (link.toString().indexOf( "StatusForm.submit()" ) >= 0) {
-				submit_button= link;
-				break;
+		// get stanje button
+		HtmlElement submit_button= null;
+		final List<HtmlElement> spans= ((HtmlPage) loged_in).getBody()
+				.getHtmlElementsByTagName( "div" );
+		for (HtmlElement el : spans) {
+			if (el.getAttribute( "class" ).equals( "button" )) {
+				if (el.asText().equals( "STANJE" )) {
+					submit_button= el;
+					break;
+				}
 			}
+		}
 		try {
 			loged_in= submit_button.click();
 			return true;
@@ -208,14 +215,16 @@ public class MobiRacun{
 			form.getInputByName( "puk" ).setValueAttribute( this.getPuk_code() );
 
 			// Find a "submit" button
-			Iterable<HtmlAnchor> links= page.getAnchors(); // page.getHtmlElementDescendants();
-
-			HtmlAnchor submit_button= null;
-			for (HtmlAnchor link : links)
-				if (link.toString().indexOf( "RefillForm.submit()" ) >= 0) {
-					submit_button= link;
+			HtmlElement submit_button= null;
+			final List<HtmlElement> spans= form
+					.getHtmlElementsByTagName( "div" );
+			for (HtmlElement el : spans) {
+				if (el.getAttribute( "class" ).equals( "button" )) {
+					submit_button= el;
 					break;
 				}
+			}
+
 			if (submit_button == null)
 				throw new Exception( "Could not find a SUBMIT button" );
 			loged_in= submit_button.click();
@@ -236,14 +245,15 @@ public class MobiRacun{
 		HtmlForm form= ((HtmlPage) this.loged_in).getFormByName( "RefillForm" );
 		form.getInputByName( "scratch" ).setValueAttribute( koda );
 
-		Iterable<HtmlAnchor> links= ((HtmlPage) this.loged_in).getAnchors(); // page.getHtmlElementDescendants();
-
-		HtmlAnchor submit_button= null;
-		for (HtmlAnchor link : links)
-			if (link.toString().indexOf( "RefillForm.submit()" ) >= 0) {
-				submit_button= link;
+		HtmlElement submit_button= null;
+		final List<HtmlElement> spans= form.getHtmlElementsByTagName( "div" );
+		for (HtmlElement el : spans) {
+			if ((el.getAttribute( "class" ).equals( "button" ))
+					&& (el.asText().equals( "NAPOLNI" ))) {
+				submit_button= el;
 				break;
 			}
+		}
 
 		try {
 			HtmlPage result= submit_button.click();
@@ -291,7 +301,7 @@ public class MobiRacun{
 						}
 						continue;
 					}
-					
+
 					if (row.getCell( 0 ).asText().indexOf( "Velja DO:" ) >= 0) {
 						try {
 							SimpleDateFormat df= new SimpleDateFormat(
@@ -302,7 +312,7 @@ public class MobiRacun{
 						}
 						continue;
 					}
-					
+
 					if (row.getCell( 0 ).asText().indexOf( "Status:" ) >= 0) {
 						racunAktiven= Boolean.valueOf( row.getCell( 1 )
 								.asText().equals( "Aktiven" ) );
